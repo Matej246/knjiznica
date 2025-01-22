@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knjižnica - Prijava</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+<body>
+
+    <!-- Navigacija -->
+    <div class="w3-bar w3-blue">
+        <a href="index.html" class="w3-bar-item w3-button">Početna stranica</a>
+        <a href="login.html" class="w3-bar-item w3-button">Prijava</a>
+        <a href="knjige.html" class="w3-bar-item w3-button">Unos knjiga</a>
+    </div>
+
+    <div class="w3-container w3-cyan">
+        <h1>Prijava</h1>
+        <form id="login-form">
+            <input type="text" id="login-username" placeholder="Korisničko ime" class="w3-input w3-border" required><br><br>
+            <input type="password" id="login-password" placeholder="Lozinka" class="w3-input w3-border" required><br><br>
+            <button type="submit" class="w3-btn w3-blue">Prijavi se</button>
+        </form>
+
+        <!-- Poruka o uspješnoj prijavi -->
+        <p id="success-message" class="w3-text-green" style="display: none;">Uspješno ste se prijavili!</p>
+        <p>Nemate račun? <a href="register.html">Registrirajte se</a></p>
+    </div>
+
+    <footer class="w3-container w3-blue w3-center">
+        <p> Programiranje za Internet</p>
+    </footer>
+
+    <script>
+        // Unaprijed definirani podaci za prijavu
+        const validUser = {
+            username: "admin",
+            password: "admin"
+        };
+
+        // Funkcija za prijavu
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault(); // Sprečava ponovno učitavanje stranice
+
+            // Dohvat unosa korisničkog imena i lozinke
+            const username = document.getElementById("login-username").value;
+            const password = document.getElementById("login-password").value;
+
+            // Provjera korisničkog imena i lozinke
+            if (username === validUser.username && password === validUser.password) {
+                // Ako su podaci ispravni, prikazuje se poruka o uspješnoj prijavi
+                document.getElementById("success-message").style.display = "block";
+            } else {
+                // Ako podaci nisu ispravni, prikazuje se upozorenje
+                alert("Pogrešno korisničko ime ili lozinka.");
+            }
+        });
+    </script>
+
+</body>
+</html>

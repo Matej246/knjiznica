@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unos Knjiga</title>
+    <!-- Povezivanje s W3Schools CSS predloškom -->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+</head>
+<body>
+
+    <!-- Statički izbornik -->
+    <div class="w3-bar w3-blue">
+        <a href="index.html" class="w3-bar-item w3-button">Početna stranica</a>
+        <a href="login.html" class="w3-bar-item w3-button">Prijava</a>
+        <a href="knjige.html" class="w3-bar-item w3-button">Unos knjiga</a>
+    </div>
+
+    <!-- Glavni sadržaj -->
+    <div class="w3-container w3-cyan">
+        <h1>Unos Podataka o Knjigama</h1>
+    </div>
+
+    <!-- Forma za unos knjiga -->
+    <div class="w3-container">
+        <form id="knjiga-form">
+            <label for="inventarniBroj" class="w3-text-blue">Inventarni broj:</label>
+            <input type="text" id="inventarniBroj" class="w3-input w3-border" required><br><br>
+
+            <label for="brojPosudbe" class="w3-text-blue">Broj posudbe:</label>
+            <input type="text" id="brojPosudbe" class="w3-input w3-border" required><br><br>
+
+            <label for="autor" class="w3-text-blue">Autor:</label>
+            <input type="text" id="autor" class="w3-input w3-border" required><br><br>
+
+            <button type="submit" class="w3-btn w3-blue">Spremi Knjigu</button>
+        </form>
+    </div>
+
+    <!-- Popis unesenih knjiga -->
+    <div class="w3-container">
+        <h2>Popis Knjiga</h2>
+        <ul id="knjige-lista" class="w3-ul w3-card-4"></ul>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w3-container w3-blue w3-center">
+        <p> Programiranje za Internet</p>
+    </footer>
+
+    <!-- JavaScript za funkcionalnost -->
+    <script>
+        // Dohvaćanje popisa knjiga prilikom učitavanja stranice
+        window.onload = function() {
+            fetchKnjige();
+        };
+
+        // Funkcija za dohvat knjiga sa servera
+        function fetchKnjige() {
+            fetch('http://localhost:3000/knjige')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(knjiga => {
+                        dodajKnjiguNaPopis(knjiga.inventarniBroj, knjiga.brojPosudbe, knjiga.autor);
+                    });
+                })
+                .catch(error => console.error('Greška pri dohvaćanju knjiga:', error));
+        }
+
+        // Funkcija za unos nove knjige
+        document.getElementById("knjiga-form").addEventListener("submit", function(event) {
+            event.preventDefault();  // Sprečava ponovno učitavanje stranice
+
+            // Dohvat unosa iz forme
+            const inventarniBroj = document.getElementById("inventarniBroj").value;
+            const brojPosudbe = document.getElementById("brojPosudbe").value;
+            const autor = document.getElementById("autor").value;
+
+            // Slanje podataka na backend
+            fetch('http://localhost:3000/knjige', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    inventarniBroj: inventarniBroj,
+                    brojPosudbe: brojPosudbe,
+                    autor: autor
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Knjiga uspješno unesena!') {
+                    alert(data.message);
+                    dodajKnjiguNaPopis(inventarniBroj, brojPosudbe, autor);
+                } else {
+                    alert('Došlo je do greške pri unosu knjige!');
+                }
+            })
+            .catch(error => {
+                console.error("Greška pri slanju podataka na server:", error);
+                alert("Došlo je do greške. Pokušajte ponovno.");
+            });
+
+            // Resetiranje forme
+            document.getElementById("knjiga-form").reset();
+        });
+
+        // Dodavanje knjige na popis u HTML-u
+        function dodajKnjiguNaPopis(inventarniBroj, brojPosudbe, autor) {
+            const li = document.createElement("li");
+            li.className = "w3-padding-16";
+            li.innerHTML = `<strong>Inventarni broj:</strong> ${inventarniBroj}, <strong>Broj posudbe:</strong> ${brojPosudbe}, <strong>Autor:</strong> ${autor} 
+                <button onclick="obrišiKnjigu(this, '${inventarniBroj}')" class="w3-btn w3-red w3-small w3-right">Obriši</button>`;
+
+            // Dodavanje stavke u popis
+            document.getElementById("knjige-lista").appendChild(li);
+        }
+
+        // Brisanje knjige sa servera
+        function obrišiKnjigu(gumb, inventarniBroj) {
+            fetch(`http://localhost:3000/knjige/${inventarniBroj}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Knjiga uspješno obrisana!') {
+                    alert(data.message);
+                    const stavka = gumb.parentElement;  // Dohvat roditeljskog elementa (li)
+                    stavka.remove();  // Uklanjanje elementa iz popisa
+                } else {
+                    alert('Greška pri brisanju knjige!');
+                }
+            })
+            .catch(error => {
+                console.error('Greška pri brisanju knjige:', error);
+                alert('Došlo je do greške pri brisanju knjige.');
+            });
+        }
+    </script>
+
+</body>
+</html>
